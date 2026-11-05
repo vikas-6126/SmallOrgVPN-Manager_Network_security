@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Admin Login · SmallOrg VPN{% endblock %}
+{% block content %}
+<section class="login-card">
+  <div class="eyebrow">ADMIN CONSOLE</div>
+  <h1>Secure access starts here.</h1>
+  <p class="muted">Sign in to manage remote-access VPN peers for your organisation.</p>
+  <form method="post">
+    <label>Username<input name="username" required autocomplete="username"></label>
+    <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+    <button type="submit">Sign in</button>
+  </form>
+  <p class="hint">Default demo login: <code>admin</code> / <code>ChangeMe123!</code>. Change it before deployment.</p>
+</section>
+{% endblock %}

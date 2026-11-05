@@ -1,0 +1,14 @@
+services:
+  vpn-manager:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - vpn_data:/app/data
+    environment:
+      DATABASE_PATH: /app/data/vpn_manager.db
+    restart: unless-stopped
+volumes:
+  vpn_data:

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · SmallOrg VPN{% endblock %}
+{% block content %}
+<section class="hero">
+  <div><div class="eyebrow">NETWORK SECURITY · ADMIN DASHBOARD</div>
+    <h1>Remote access, <span>under control.</span></h1>
+    <p class="muted">Create and manage WireGuard client profiles for a small organisation.</p>
+  </div>
+  <div class="status"><span class="pulse"></span> Manager online</div>
+</section>
+
+<section class="stats">
+  <div class="stat"><span>Registered peers</span><strong>{{ peers|length }}</strong></div>
+  <div class="stat"><span>VPN endpoint</span><strong class="small">{{ endpoint }}</strong></div>
+  <div class="stat"><span>Server public key</span><strong class="small">{{ "Configured" if server_key_ready else "Not configured" }}</strong></div>
+</section>
+
+<section class="panel">
+  <div class="panel-heading"><div><div class="eyebrow">ACCESS MANAGEMENT</div><h2>Add a team member</h2></div></div>
+  <form class="add-form" method="post" action="{{ url_for('add_peer') }}">
+    <label>Employee / device name<input name="name" placeholder="e.g. Finance-Laptop" maxlength="80" required></label>
+    <label>Email (optional)<input name="email" type="email" placeholder="name@company.com" maxlength="120"></label>
+    <button type="submit">＋ Create peer</button>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-heading"><div><div class="eyebrow">CONNECTED DEVICES</div><h2>VPN peer directory</h2></div><span class="count">{{ peers|length }} total</span></div>
+  {% if peers %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Device / user</th><th>Assigned VPN IP</th><th>Public key</th><th>Created</th><th>Actions</th></tr></thead>
+    <tbody>{% for peer in peers %}
+    <tr>
+      <td><strong>{{ peer.name }}</strong><small>{{ peer.email or "No email provided" }}</small></td>
+      <td><code>{{ peer.address }}</code></td>
+      <td><code class="key">{{ peer.public_key[:18] }}…</code></td>
+      <td>{{ peer.created_at[:10] }}</td>
+      <td class="actions">
+        <a class="button-link" href="{{ url_for('download_config', peer_id=peer.id) }}">Client config</a>
+        <a class="button-link secondary" href="{{ url_for('server_snippet', peer_id=peer.id) }}">Server entry</a>
+        <form method="post" action="{{ url_for('delete_peer', peer_id=peer.id) }}" onsubmit="return confirm('Remove this peer from the manager?');">
+          <button class="danger" type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><div class="empty-icon">＋</div><h3>No peers yet</h3><p>Create the first client profile to get started.</p></div>{% endif %}
+</section>
+
+<section class="notice">
+  <strong>Deployment reminder</strong>
+  <p>This dashboard stores peer records and generates WireGuard configuration files. It does not automatically change a live VPN server. Apply each downloaded server peer entry to the WireGuard server, then securely distribute the client configuration.</p>
+  {% if not server_key_ready %}<p class="warning-text">Set <code>SERVER_PUBLIC_KEY</code> in your environment before downloading real client profiles.</p>{% endif %}
+</section>
+{% endblock %}
